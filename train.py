@@ -82,16 +82,15 @@ for epoch in range(train_epochs):
         # -----------------
         #  Update Generator
         # -----------------
-        for _ in range(1):
-            optimizer_G.zero_grad()
-            z = torch.randn(size=(batch_size,100)).to(device)
-            gen_imgs = generator(z).reshape(batch_size,784)
-            D_gen = discriminator(gen_imgs)
-            g_loss = g_loss_fn(D_gen, label_ones)
-            g_loss.backward()
-            optimizer_G.step()
-            epoch_g_update_count += 1
-            epoch_mean_g_loss += g_loss
+        optimizer_G.zero_grad()
+        z = torch.randn(size=(batch_size,100)).to(device)
+        gen_imgs = generator(z).reshape(batch_size,784)
+        D_gen = discriminator(gen_imgs)
+        g_loss = g_loss_fn(D_gen, label_ones)
+        g_loss.backward()
+        optimizer_G.step()
+        epoch_g_update_count += 1
+        epoch_mean_g_loss += g_loss
 
     if epoch%sample_interval == 0:
         # Enter eval mode
