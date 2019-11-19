@@ -79,9 +79,9 @@ for epoch in range(train_epochs):
         epoch_d_update_count += 1
         epoch_mean_d_loss += d_loss
 
-        # ---------------
+        # -----------------
         #  Update Generator
-        # ---------------
+        # -----------------
         for _ in range(1):
             optimizer_G.zero_grad()
             z = torch.randn(size=(batch_size,100)).to(device)
@@ -108,3 +108,15 @@ for epoch in range(train_epochs):
     epoch_train_g_losses.append(epoch_mean_g_loss)
 
     print('Epoch {}: train_d_loss = {} and train_g_loss = {}'.format(epoch, epoch_mean_d_loss, epoch_mean_g_loss))
+
+# -----------------
+#  Plot losses
+# -----------------
+fig = plt.figure()
+plt.title('Train_D_loss and Train_G_loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.plot(epoch_train_d_losses, 'r', label='Train D Loss')
+plt.plot(epoch_train_g_losses, 'g', label='Train G Loss')
+plt.legend(loc='upper right')
+plt.show()
