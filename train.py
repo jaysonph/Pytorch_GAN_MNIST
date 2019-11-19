@@ -9,6 +9,7 @@ import os
 from tqdm import tqdm_notebook
 import matplotlib.pyplot as plt
 from model import *
+import config as cfg
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -28,8 +29,8 @@ print('====================== Discriminator Model ======================')
 print(summary(discriminator, input_size=(784,)),'\n')
 
 # Optimizers
-optimizer_G = torch.optim.Adam(generator.parameters(), lr=learning_rate)
-optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=learning_rate)
+optimizer_G = torch.optim.Adam(generator.parameters(), lr=cfg.learning_rate)
+optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=cfg.learning_rate)
 
 # Loss record
 epoch_train_d_losses = []
@@ -38,7 +39,7 @@ epoch_train_g_losses = []
 # Fixed input for inspection of the change of generated images after training generator
 sample_z = torch.randn(size=(20,100)).to(device)
 
-for epoch in range(train_epochs):
+for epoch in range(cfg.train_epochs):
 
     # Enter Train mode
     generator.train()
@@ -49,21 +50,21 @@ for epoch in range(train_epochs):
     epoch_d_update_count = 0
     epoch_g_update_count = 0
 
-    for i, (imgs, _) in enumerate(tqdm_notebook(dataloader, desc='Epoch {}/{}'.format(epoch,train_epochs))):
+    for i, (imgs, _) in enumerate(tqdm_notebook(dataloader, desc='Epoch {}/{}'.format(epoch,cfg.train_epochs))):
 
         # Prepare data
-        imgs = imgs.reshape(batch_size,784)
+        imgs = imgs.reshape(cfg.batch_size,784)
         imgs = imgs + torch.tensor(torch.randn(imgs.size()) * 0.02)  # Add noise to imgs
         imgs = imgs.to(device)
 
         # Prepare label for BCE loss
-        label_ones = torch.ones((batch_size,1)).to(device)
-        label_zeros = torch.zeros((batch_size,1)).to(device)
+        label_ones = torch.ones((cfg.batch_size,1)).to(device)
+        label_zeros = torch.zeros((cfg.batch_size,1)).to(device)
 
         # Create noise samples
-        z = torch.randn(size=(batch_size,100)).to(device)
+        z = torch.randn(size=(cfg.batch_size,100)).to(device)
 
-        gen_imgs = generator(z).detach().reshape(batch_size,784)
+        gen_imgs = generator(z).detach().reshape(cfg.batch_size,784)
         D_gen = discriminator(gen_imgs)  # Detach so no grad will flow through to generator
         D_real = discriminator(imgs)
 
@@ -83,8 +84,8 @@ for epoch in range(train_epochs):
         #  Update Generator
         # -----------------
         optimizer_G.zero_grad()
-        z = torch.randn(size=(batch_size,100)).to(device)
-        gen_imgs = generator(z).reshape(batch_size,784)
+        z = torch.randn(size=(cfg.batch_size,100)).to(device)
+        gen_imgs = generator(z).reshape(cfg.batch_size,784)
         D_gen = discriminator(gen_imgs)
         g_loss = g_loss_fn(D_gen, label_ones)
         g_loss.backward()
@@ -92,7 +93,7 @@ for epoch in range(train_epochs):
         epoch_g_update_count += 1
         epoch_mean_g_loss += g_loss
 
-    if epoch%sample_interval == 0:
+    if epoch%cfg.sample_interval == 0:
         # Enter eval mode
         generator.eval()
         discriminator.eval()
